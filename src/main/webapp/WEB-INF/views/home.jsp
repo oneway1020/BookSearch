@@ -104,6 +104,9 @@
 	</nav>
 
 
+	<div class="containter text-center" style="color: black; font-weight: bold; font-size: 3em; padding-top: 80px;">
+		최고의 검색사이트! SearchMaina
+	</div>
 	<!-- 화면 중앙에 이미지를 보여준다. -->
 	<div class="body-Container">
 		<div id="myCarousel" class="carousel slide" data-ride="carousel">
@@ -113,6 +116,7 @@
 				<li data-target="#myCarousel" data-slide-to="1"></li>
 				<li data-target="#myCarousel" data-slide-to="2"></li>
 			</ol>
+			
 			
 			<!-- Wrapper for slides -->
 			<div class="carousel-inner">
@@ -159,7 +163,7 @@
 		카테고리 선택
 	</div>
 	<div class="container">
-		<form id="searchForm" action="/search" method="get">
+		<form id="searchForm">
 			<div class="row" id="menu">
 				<select id="categorySearch" title="카테고리" onchange="callSearch();">
 					<option value="none">==========선택==========</option>
@@ -168,37 +172,27 @@
 					<option value='webkr' >웹문서</option>
 					<option value='image' >이미지</option>
 				</select>
-				<input id="searchInput" style="width: 200px; padding: .8em .5em;" class="hiddenSearch" name="searchText" hidden="hidden" placeholder="검색할 내용을 입력해주세요."/>
+				<input id="searchInput" style="width: 200px; padding: .8em .5em;" class="hiddenSearch" name="searchText" hidden="hidden" placeholder="검색할 내용을 입력해주세요." onkeypress="fnEnterkey();"/>
 				<input style="width: 100px; padding: .8em .5em;" class="hiddenSearch" type="button" hidden="hidden" value="검색" onclick="searchWeb();"/>
 			</div>
 		</form>
 	</div>
+	<!--  
 	<form id="testSend">
 		<input id="id" name="id" value="1234"/>
 		<button type="button" onclick="testformGo();">전송</button>
 	</form>
+	-->
 
 </body>
-<script>
-
+<script src="/resources/js/search.js">
+/*
 	function testformGo() {
 		let testForm = document.getElementById("testSend");
 		testForm.action = "search/user/" + $("#id").val();
 		testForm.method = "GET";
 		testForm.submit();
 	}
-
-	function callSearch() {
-		$(".hiddenSearch").removeAttr("hidden");
-		$("select option[value*='none']").prop('disabled',true);
-		$("#searchInput").val('');
-	}
-	
-	function searchWeb() {
-		let searchForm = document.getElementById("searchForm");
-		searchForm.action = "/search/" + $("#categorySearch").val();
-		searchForm.method = "GET";
-		searchForm.submit();
-	}
+*/
 </script>
 </html>

@@ -5,27 +5,50 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import com.movieSearch.www.common.util.Criteria;
+import com.movieSearch.www.common.util.PageMaker;
+
+import org.json.simple.parser.ParseException;
 
 
 @Controller
 public class SearchController {
 	
 	@RequestMapping(value = "/search/{category}", method = RequestMethod.GET)
-	public String searchResult(@PathVariable("category")String category, String searchText, Model model) {
+	public String searchResult(@PathVariable("category")String category, String searchText, Criteria cri, Model model) {
+
 		
 		String clientId = "e9nLCvhiPYMCkrFoaQvv"; //애플리케이션 클라이언트 아이디
         String clientSecret = "oHyKzI5pyV"; //애플리케이션 클라이언트 시크릿
+        
+        PageMaker pageMaker = new PageMaker();
+        
+        pageMaker.setCri(cri);
 
-
+        
+        int display = pageMaker.getCri().getPerPageNum();	// 한 페이지에 보여주는 갯수
+        
+        
+        // 페이지의 시작점.
+        // 1 페이지에선 1 ~ 20(display 개수), 2페이지에선 21 ~ 40
+        int start = (pageMaker.getCri().getPage() >= 2) ? 1 + pageMaker.getCri().getPage() * display - display : 1;
+        
+        // System.out.println("page 값: " + pageMaker.getCri().getPage());
+        // System.out.println("start 값: " + start);
+        
         String text = null;
         try {
 	            text = URLEncoder.encode(searchText, "UTF-8");
@@ -34,7 +57,8 @@ public class SearchController {
 	        }
 	
 	
-	        String apiURL = "https://openapi.naver.com/v1/search/" + category + "?query=" + text;    // JSON 결과
+	        String apiURL = "https://openapi.naver.com/v1/search/" + category + "?query=" + text + "&start=" + start + "&display=" + display + "&sort=date";    // JSON 결과
+	        
 	        //String apiURL = "https://openapi.naver.com/v1/search/blog.xml?query="+ text; // XML 결과
 	
 	
@@ -44,13 +68,40 @@ public class SearchController {
 	        String responseBody = get(apiURL,requestHeaders);
 	
 	
-	        System.out.println(responseBody);
+	        // System.out.println(responseBody);
 	        
 	        // 받아온JSON 정보를(responseBody) 객체형태로 변경해줘야한다.
 	        // JSON 파싱
+	        try {
+	        	JSONParser parser = new JSONParser();
+	        	
+	        	// parser을 통해 String값을 JSON 객체로 만들어준다...
+	        	JSONObject object = (JSONObject) parser.parse(responseBody);
+	        	
+	        	// 이후 원하는 값이 있다면 get을 통해 꺼낸다.
+	        	String totalResult = object.get("total").toString();
+	        	
+	        	pageMaker.setTotalCount(Integer.parseInt(totalResult));	// 페이지메이커에 총 개수를 넣는다.
+	        	
+	        	// System.out.println("total값: " + totalResult);
+	        	
+	        	// JSON에서 배열을 저장할때 사용
+	        	JSONArray memberArray = (JSONArray) object.get("items");
+	        	
+	        	model.addAttribute("result", memberArray);
+	        	model.addAttribute("totalResult", totalResult);
+	        	model.addAttribute("category", category);
+	        	model.addAttribute("pageMaker", pageMaker);
+	        	model.addAttribute("searchText", searchText);
+	        	
+	        	System.out.println(memberArray);
+	        	
+	        } catch(ParseException e) {
+	        	e.printStackTrace();
+	        }
 	        
 	        
-	        model.addAttribute("result", responseBody);
+	        // model.addAttribute("result", responseBody);
 	        
 	        return "search";
 	    }
